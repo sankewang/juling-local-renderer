@@ -6,7 +6,7 @@ Juling 本地渲染器用于把“翻译配音智能体”导出的本地渲染�
 
 ## 适用场景
 
-- 从剧灵绘AI漫剧平台网站（www.julinghui.com）下载了“本地渲染素材包 ZIP”
+- 从剧灵绘AI漫剧平台网站（[www.julinghui.com](https://www.julinghui.com)）下载了“本地渲染素材包 ZIP”
 - 想在本地电脑生成最终 MP4
 - 想按不同语言分别导出视频
 - 想静音源视频原声，只保留目标语言 TTS 配音
