@@ -16,7 +16,8 @@ class RenderError(RuntimeError):
 
 
 PACKAGE_TYPE = "juling-shortdrama-local-render"
-CLI_VERSION = "0.2.0"
+CLI_VERSION = "0.2.1"
+DEFAULT_TTS_VOLUME_GAIN = 1.8
 
 
 def require_ffmpeg() -> str:
@@ -207,7 +208,7 @@ def render_language(package_zip: Path, lang: str, output: Path, burn_subtitles: 
             inputs.extend(["-i", str(audio_path)])
             delay_ms = max(int(round(float(segment.get("start_sec") or 0) * 1000)), 0)
             label = f"a{idx}"
-            audio_filters.append(f"[{idx}:a]adelay={delay_ms}:all=1[{label}]")
+            audio_filters.append(f"[{idx}:a]volume={DEFAULT_TTS_VOLUME_GAIN},adelay={delay_ms}:all=1[{label}]")
             mix_labels.append(f"[{label}]")
 
         width, height = target_size(manifest.get("resolution"), manifest.get("aspect_ratio"))
