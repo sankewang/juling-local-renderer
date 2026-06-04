@@ -1,0 +1,26 @@
+name: build
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip pyinstaller
+      - run: python -m pip install .
+      - run: pyinstaller --onefile --name juling-render src/juling_local_renderer/cli.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: juling-render-${{ matrix.os }}
+          path: dist/*
