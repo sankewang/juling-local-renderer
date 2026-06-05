@@ -62,6 +62,8 @@ Windows 普通用户请到 Releases 下载 `juling-render-gui.exe`：
 
 Windows 用户建议下载 `ffmpeg-master-latest-win64-gpl.zip` 或稳定版 `ffmpeg-release-full.7z`，解压后把 `bin` 目录加入系统 `PATH`。
 
+FFmpeg 下载地址：[BtbN FFmpeg Builds Releases](https://github.com/BtbN/FFmpeg-Builds/releases)
+
 安装完成后，在命令行检查：
 
 ```bash
