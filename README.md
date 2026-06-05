@@ -4,6 +4,29 @@ Juling 本地渲染器用于把“翻译配音智能体”导出的本地渲染�
 
 你不需要把视频上传到服务器渲染。下载素材包后，在自己的电脑上运行本工具即可生成配音版视频。
 
+## 普通用户请先看这里
+
+如果你是从 GitHub 页面右上角 `Code -> Download ZIP` 下载的文件夹，例如：
+
+```text
+juling-local-renderer-main
+```
+
+这只是源码包，不是普通用户直接使用的版本。
+
+Windows 用户请到 Releases 下载 `juling-render.exe`：
+
+[下载 juling-render.exe](https://github.com/sankewang/juling-local-renderer/releases/latest)
+
+不要下载 GitHub 自动生成的 `Source code (zip)` 或 `Source code (tar.gz)`。
+
+下载后，把 `juling-render.exe` 和剧灵绘AI漫剧平台导出的“本地渲染素材包 ZIP”放到同一个文件夹，然后在该文件夹打开 PowerShell：
+
+```powershell
+.\juling-render.exe doctor .\package.zip
+.\juling-render.exe render .\package.zip --all --output-dir .\exports
+```
+
 ## 适用场景
 
 - 从剧灵绘AI漫剧平台网站（[www.julinghui.com](https://www.julinghui.com)）下载了“本地渲染素材包 ZIP”
