@@ -21,7 +21,7 @@ jobs:
       - run: python -m pip install .
       - run: pyinstaller --onefile --name juling-render src/juling_local_renderer/cli.py
       - if: runner.os == 'Windows'
-        run: pyinstaller --onefile --windowed --name juling-render-gui src/juling_local_renderer/gui.py
+        run: pyinstaller --onefile --windowed --name juling-render-gui --icon assets/app-icon.ico --add-data "assets/app-icon.ico;assets" src/juling_local_renderer/gui.py
       - uses: actions/upload-artifact@v4
         with:
           name: juling-render-${{ matrix.os }}

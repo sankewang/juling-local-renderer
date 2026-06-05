@@ -16,7 +16,7 @@ class RenderError(RuntimeError):
 
 
 PACKAGE_TYPE = "juling-shortdrama-local-render"
-CLI_VERSION = "0.3.0"
+CLI_VERSION = "0.3.1"
 DEFAULT_TTS_VOLUME_GAIN = 1.8
 
 

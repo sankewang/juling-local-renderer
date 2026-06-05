@@ -50,8 +50,14 @@ class JulingRendererApp:
         self.root.title("剧灵绘本地渲染器")
         self.root.geometry("760x560")
         self.root.minsize(720, 520)
+        self._set_window_icon()
         self._build_ui()
         self._poll_queue()
+
+    def _set_window_icon(self) -> None:
+        icon_path = resource_path("assets/app-icon.ico")
+        if icon_path.exists():
+            self.root.iconbitmap(str(icon_path))
 
     def _build_ui(self) -> None:
         self.root.columnconfigure(0, weight=1)
@@ -279,6 +285,11 @@ def main() -> None:
     root = Tk()
     JulingRendererApp(root)
     root.mainloop()
+
+
+def resource_path(relative_path: str) -> Path:
+    base = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parents[2]))
+    return base / relative_path
 
 
 if __name__ == "__main__":
