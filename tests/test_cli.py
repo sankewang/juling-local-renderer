@@ -1,7 +1,17 @@
 import json
 import zipfile
 
-from juling_local_renderer.cli import default_output_path, manifest_languages, package_summary, target_size, validate_package
+from pathlib import Path
+
+from juling_local_renderer.cli import (
+    default_output_path,
+    manifest_languages,
+    package_summary,
+    subtitle_force_style,
+    subtitles_filter,
+    target_size,
+    validate_package,
+)
 
 
 def test_target_size_vertical():
@@ -61,3 +71,17 @@ def test_default_output_path_uses_job_name(tmp_path):
     package = tmp_path / "package.zip"
     make_package(package)
     assert default_output_path(package, "en").name == "Demo_Task_en.mp4"
+
+
+def test_subtitle_position_above_original():
+    assert subtitle_force_style("above-original", 720) == "Alignment=2,MarginV=158"
+
+
+def test_subtitle_position_bottom():
+    assert subtitle_force_style("bottom", 720) == "Alignment=2,MarginV=36"
+
+
+def test_subtitles_filter_uses_position_style():
+    result = subtitles_filter(Path("subtitles/en.srt"), "top", 720)
+    assert "subtitles='subtitles/en.srt'" in result
+    assert "force_style='Alignment=8,MarginV=43'" in result

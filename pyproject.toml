@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "juling-local-renderer"
-version = "0.3.1"
+version = "0.3.2"
 description = "Local renderer for Juling short-drama translation/dubbing packages"
 readme = "README.md"
 requires-python = ">=3.10"

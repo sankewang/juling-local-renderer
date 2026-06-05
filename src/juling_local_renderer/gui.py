@@ -44,6 +44,7 @@ class JulingRendererApp:
         self.render_all = BooleanVar(value=True)
         self.burn_subtitles = BooleanVar(value=True)
         self.language = StringVar()
+        self.subtitle_position = StringVar(value="避开原字幕")
         self.languages: list[str] = []
         self.is_working = False
 
@@ -87,7 +88,7 @@ class JulingRendererApp:
 
         options = ttk.Frame(frame)
         options.grid(row=4, column=0, columnspan=3, sticky="ew", pady=(10, 4))
-        options.columnconfigure(4, weight=1)
+        options.columnconfigure(6, weight=1)
         ttk.Checkbutton(options, text="渲染全部语言", variable=self.render_all, command=self.update_language_state).grid(
             row=0, column=0, sticky="w"
         )
@@ -95,6 +96,15 @@ class JulingRendererApp:
         self.language_select = ttk.Combobox(options, textvariable=self.language, state="disabled", width=18)
         self.language_select.grid(row=0, column=2, sticky="w")
         ttk.Checkbutton(options, text="烧录字幕", variable=self.burn_subtitles).grid(row=0, column=3, sticky="w", padx=(24, 0))
+        ttk.Label(options, text="字幕位置").grid(row=0, column=4, sticky="w", padx=(24, 8))
+        self.subtitle_position_select = ttk.Combobox(
+            options,
+            textvariable=self.subtitle_position,
+            state="readonly",
+            width=12,
+            values=["避开原字幕", "底部", "顶部", "中部"],
+        )
+        self.subtitle_position_select.grid(row=0, column=5, sticky="w")
 
         actions = ttk.Frame(frame)
         actions.grid(row=5, column=0, columnspan=3, sticky="ew", pady=(14, 10))
@@ -199,17 +209,30 @@ class JulingRendererApp:
         self._log(f"开始渲染，输出目录：{output_dir}")
         thread = threading.Thread(
             target=self._render_worker,
-            args=(package, output_dir, langs, self.burn_subtitles.get()),
+            args=(package, output_dir, langs, self.burn_subtitles.get(), self._subtitle_position_code()),
             daemon=True,
         )
         thread.start()
 
-    def _render_worker(self, package: Path, output_dir: Path, langs: list[str], burn_subtitles: bool) -> None:
+    def _render_worker(
+        self,
+        package: Path,
+        output_dir: Path,
+        langs: list[str],
+        burn_subtitles: bool,
+        subtitle_position: str,
+    ) -> None:
         try:
             for lang in langs:
                 output = default_output_path(package, lang, output_dir)
                 self.queue.put(("log", f"正在渲染 {self._language_label(lang)}：{output.name}"))
-                render_language(package, lang, output, burn_subtitles=burn_subtitles)
+                render_language(
+                    package,
+                    lang,
+                    output,
+                    burn_subtitles=burn_subtitles,
+                    subtitle_position=subtitle_position,
+                )
                 self.queue.put(("log", f"完成：{output}"))
             self.queue.put(("done", output_dir))
         except RenderError as exc:
@@ -253,6 +276,14 @@ class JulingRendererApp:
             if selected == self._language_label(lang):
                 return lang
         return self.languages[0] if self.languages else ""
+
+    def _subtitle_position_code(self) -> str:
+        return {
+            "避开原字幕": "above-original",
+            "底部": "bottom",
+            "顶部": "top",
+            "中部": "middle",
+        }.get(self.subtitle_position.get(), "above-original")
 
     def _language_label(self, lang: str) -> str:
         return f"{LANGUAGE_LABELS.get(lang, lang)} ({lang})"

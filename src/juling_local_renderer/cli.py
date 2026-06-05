@@ -16,8 +16,9 @@ class RenderError(RuntimeError):
 
 
 PACKAGE_TYPE = "juling-shortdrama-local-render"
-CLI_VERSION = "0.3.1"
+CLI_VERSION = "0.3.2"
 DEFAULT_TTS_VOLUME_GAIN = 1.8
+SUBTITLE_POSITION_CHOICES = ("above-original", "bottom", "top", "middle")
 
 
 def require_ffmpeg() -> str:
@@ -197,7 +198,28 @@ def subtitle_path(manifest: dict, lang: str, work_dir: Path) -> Path | None:
     return None
 
 
-def render_language(package_zip: Path, lang: str, output: Path, burn_subtitles: bool = True) -> None:
+def subtitle_force_style(position: str, height: int) -> str:
+    normalized = position if position in SUBTITLE_POSITION_CHOICES else "above-original"
+    if normalized == "top":
+        return f"Alignment=8,MarginV={max(int(height * 0.06), 36)}"
+    if normalized == "middle":
+        return "Alignment=5"
+    if normalized == "bottom":
+        return f"Alignment=2,MarginV={max(int(height * 0.05), 28)}"
+    return f"Alignment=2,MarginV={max(int(height * 0.22), 120)}"
+
+
+def subtitles_filter(path: Path, position: str, height: int) -> str:
+    return f"subtitles='{ffmpeg_escape(path)}':force_style='{subtitle_force_style(position, height)}'"
+
+
+def render_language(
+    package_zip: Path,
+    lang: str,
+    output: Path,
+    burn_subtitles: bool = True,
+    subtitle_position: str = "above-original",
+) -> None:
     ffmpeg = require_ffmpeg()
     with tempfile.TemporaryDirectory(prefix="juling_render_") as temp:
         work_dir = Path(temp)
@@ -225,10 +247,10 @@ def render_language(package_zip: Path, lang: str, output: Path, burn_subtitles: 
             mix_labels.append(f"[{label}]")
 
         width, height = target_size(manifest.get("resolution"), manifest.get("aspect_ratio"))
-        video_filter = f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,crop={width}:{height},setsar=1"
         sub_path = subtitle_path(manifest, lang, work_dir) if burn_subtitles else None
+        video_filter = f"[0:v]scale={width}:{height}:force_original_aspect_ratio=increase,crop={width}:{height},setsar=1"
         if sub_path:
-            video_filter += f",subtitles='{ffmpeg_escape(sub_path)}'"
+            video_filter += f",{subtitles_filter(sub_path, subtitle_position, height)}"
         video_filter += "[v]"
         audio_filter = "".join(mix_labels) + f"amix=inputs={len(mix_labels)}:duration=longest:normalize=0[a]"
         filter_complex = ";".join(audio_filters + [audio_filter, video_filter])
@@ -309,14 +331,26 @@ def run_render(args: argparse.Namespace) -> int:
         output_dir = Path(args.output_dir).resolve()
         for lang in manifest_languages(package_zip):
             output = default_output_path(package_zip, lang, output_dir)
-            render_language(package_zip, lang, output, burn_subtitles=not args.no_subtitles)
+            render_language(
+                package_zip,
+                lang,
+                output,
+                burn_subtitles=not args.no_subtitles,
+                subtitle_position=args.subtitle_position,
+            )
             print(f"Rendered {lang}: {output}")
         return 0
     if args.output:
         output = Path(args.output).resolve()
     else:
         output = default_output_path(package_zip, args.lang)
-    render_language(package_zip, args.lang, output, burn_subtitles=not args.no_subtitles)
+    render_language(
+        package_zip,
+        args.lang,
+        output,
+        burn_subtitles=not args.no_subtitles,
+        subtitle_position=args.subtitle_position,
+    )
     print(f"Rendered {args.lang}: {output}")
     return 0
 
@@ -333,6 +367,12 @@ def main(argv: list[str] | None = None) -> int:
         legacy_parser.add_argument("--output", help="Output MP4 path for --lang")
         legacy_parser.add_argument("--output-dir", default="exports", help="Output directory for --all")
         legacy_parser.add_argument("--no-subtitles", action="store_true", help="Do not burn subtitles")
+        legacy_parser.add_argument(
+            "--subtitle-position",
+            choices=SUBTITLE_POSITION_CHOICES,
+            default="above-original",
+            help="Subtitle position: above-original avoids existing bottom hard subtitles",
+        )
         args = legacy_parser.parse_args(raw_argv)
         args.func = run_render
         try:
@@ -361,6 +401,12 @@ def main(argv: list[str] | None = None) -> int:
     render_parser.add_argument("--output", help="Output MP4 path for --lang; defaults to <job>_<lang>.mp4")
     render_parser.add_argument("--output-dir", default="exports", help="Output directory for --all")
     render_parser.add_argument("--no-subtitles", action="store_true", help="Do not burn subtitles")
+    render_parser.add_argument(
+        "--subtitle-position",
+        choices=SUBTITLE_POSITION_CHOICES,
+        default="above-original",
+        help="Subtitle position: above-original avoids existing bottom hard subtitles",
+    )
     render_parser.set_defaults(func=run_render)
 
     args = parser.parse_args(raw_argv)

@@ -96,6 +96,8 @@ ffmpeg -version
 
 如果素材包有多个目标语言，可以保持“渲染全部语言”勾选；如果只想渲染一个语言，取消勾选后选择指定语言。
 
+如果源视频本身已经有底部硬字幕，建议把“字幕位置”设置为“避开原字幕”，或取消“烧录字幕”只生成配音版视频。硬字幕已经是画面像素，渲染器不能无损删除原字幕。
+
 ## 命令行使用
 
 假设你已经从剧灵绘AI漫剧平台网站（[www.julinghui.com](https://www.julinghui.com)）下载了素材包：
@@ -119,6 +121,19 @@ juling-render doctor shortdrama_xxx_package.zip
 ```bash
 juling-render render shortdrama_xxx_package.zip --lang en --output result_en.mp4
 ```
+
+如果源视频底部已有硬字幕，可以把新字幕上移，避免重叠：
+
+```bash
+juling-render render shortdrama_xxx_package.zip --lang en --output result_en.mp4 --subtitle-position above-original
+```
+
+可选字幕位置：
+
+- `above-original`：避开原底部硬字幕，默认推荐
+- `bottom`：底部，仅适合无字幕源视频
+- `top`：顶部
+- `middle`：中部
 
 常见语言代码：
 
