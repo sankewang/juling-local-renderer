@@ -14,13 +14,21 @@ juling-local-renderer-main
 
 这只是源码包，不是普通用户直接使用的版本。
 
-Windows 用户请到 Releases 下载 `juling-render.exe`：
+Windows 普通用户请到 Releases 下载 `juling-render-gui.exe`：
 
-[下载 juling-render.exe](https://github.com/sankewang/juling-local-renderer/releases/latest)
+[下载 Windows 图形版渲染器](https://github.com/sankewang/juling-local-renderer/releases/latest)
 
 不要下载 GitHub 自动生成的 `Source code (zip)` 或 `Source code (tar.gz)`。
 
-下载后，把 `juling-render.exe` 和剧灵绘AI漫剧平台导出的“本地渲染素材包 ZIP”放到同一个文件夹，然后在该文件夹打开 PowerShell：
+下载后，双击打开 `juling-render-gui.exe`：
+
+1. 点击“选择素材包”，选择剧灵绘AI漫剧平台导出的“本地渲染素材包 ZIP”
+2. 选择输出文件夹
+3. 点击“检查素材包”
+4. 点击“开始渲染”
+5. 渲染完成后点击“打开输出文件夹”查看 MP4
+
+如果你更熟悉命令行，也可以下载 `juling-render.exe` 使用 CLI：
 
 ```powershell
 .\juling-render.exe doctor .\package.zip
@@ -41,7 +49,8 @@ Windows 用户请到 Releases 下载 `juling-render.exe`：
 
 到 GitHub Releases 页面下载与你电脑系统匹配的文件：
 
-- Windows：下载 `juling-render.exe`
+- Windows 普通用户：下载 `juling-render-gui.exe`
+- Windows 命令行用户：下载 `juling-render.exe`
 - macOS：下载 `juling-render`
 - Linux：下载 `juling-render`
 
@@ -61,9 +70,33 @@ ffmpeg -version
 
 如果能看到版本号，说明 FFmpeg 已经可用。
 
-## 快速开始
+## Windows 图形界面使用
 
-假设你已经从 Juling 网站下载了素材包：
+适合大多数用户，不需要输入命令。
+
+### 1. 打开工具
+
+双击 `juling-render-gui.exe`。
+
+### 2. 选择素材包
+
+点击“选择素材包”，选择从剧灵绘AI漫剧平台网站（[www.julinghui.com](https://www.julinghui.com)）下载的“本地渲染素材包 ZIP”。
+
+素材包不需要解压。
+
+### 3. 选择输出文件夹
+
+默认会输出到素材包旁边的 `exports` 文件夹，也可以手动选择其他文件夹。
+
+### 4. 开始渲染
+
+点击“检查素材包”，确认通过后点击“开始渲染”。
+
+如果素材包有多个目标语言，可以保持“渲染全部语言”勾选；如果只想渲染一个语言，取消勾选后选择指定语言。
+
+## 命令行使用
+
+假设你已经从剧灵绘AI漫剧平台网站（[www.julinghui.com](https://www.julinghui.com)）下载了素材包：
 
 ```text
 shortdrama_xxx_package.zip

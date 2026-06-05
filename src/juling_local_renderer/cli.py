@@ -16,15 +16,28 @@ class RenderError(RuntimeError):
 
 
 PACKAGE_TYPE = "juling-shortdrama-local-render"
-CLI_VERSION = "0.2.1"
+CLI_VERSION = "0.3.0"
 DEFAULT_TTS_VOLUME_GAIN = 1.8
 
 
 def require_ffmpeg() -> str:
-    ffmpeg = shutil.which("ffmpeg")
+    ffmpeg = find_ffmpeg()
     if not ffmpeg:
-        raise RenderError("FFmpeg was not found. Install FFmpeg and make sure it is available in PATH.")
+        raise RenderError("FFmpeg was not found. Install FFmpeg and make sure it is available in PATH, or put ffmpeg beside this tool.")
     return ffmpeg
+
+
+def find_ffmpeg() -> str:
+    ffmpeg = shutil.which("ffmpeg")
+    if ffmpeg:
+        return ffmpeg
+    executable_dir = Path(sys.executable).resolve().parent
+    candidates = ["ffmpeg.exe"] if sys.platform.startswith("win") else ["ffmpeg"]
+    for name in candidates:
+        candidate = executable_dir / name
+        if candidate.exists():
+            return str(candidate)
+    return ""
 
 
 def safe_extract(zf: zipfile.ZipFile, work_dir: Path) -> None:
@@ -86,9 +99,9 @@ def validate_package(package_zip: Path, require_ffmpeg_check: bool = True) -> di
     warnings: list[str] = []
     ffmpeg_path = ""
     if require_ffmpeg_check:
-        ffmpeg_path = shutil.which("ffmpeg") or ""
+        ffmpeg_path = find_ffmpeg()
         if not ffmpeg_path:
-            errors.append("FFmpeg was not found in PATH")
+            errors.append("FFmpeg was not found in PATH or beside this tool")
     if not package_zip.exists():
         errors.append(f"Package not found: {package_zip}")
         return {"ok": False, "errors": errors, "warnings": warnings, "ffmpeg": ffmpeg_path}
@@ -266,7 +279,7 @@ def run_doctor(args: argparse.Namespace) -> int:
     package = Path(args.package).resolve() if args.package else None
     payload = {
         "cli_version": CLI_VERSION,
-        "ffmpeg": shutil.which("ffmpeg") or "",
+        "ffmpeg": find_ffmpeg(),
     }
     if package:
         payload["package"] = validate_package(package, require_ffmpeg_check=True)
